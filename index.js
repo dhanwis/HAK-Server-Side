@@ -5,6 +5,10 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 
 const superAdminRoute = require("./Routes/SuperAdmin/admin");
+const productAdminRoute = require("./Routes/ProductAdmin/admin");
+const salesAdminRoute = require("./Routes/SalesAdmin/admin");
+const orderAdminRoute = require("./Routes/OrderAdmin/admin");
+const customersRoute = require("./Routes/Customers/user");
 
 dotenv.config();
 
@@ -20,9 +24,10 @@ app.use(express.urlencoded({ extended: true }));
 
 //routes
 app.use("/superAdmin", superAdminRoute);
-// app.use("/productAdmin");
-// app.use("/salesAdmin");
-// app.use("/customers");
+app.use("/productAdmin", productAdminRoute);
+app.use("/salesAdmin", salesAdminRoute);
+app.use("/orderAdmin", orderAdminRoute);
+app.use("/customers", customersRoute);
 
 // Database connection
 mongoose

@@ -1,13 +1,13 @@
 const express = require("express");
-const { login, logout } = require("../../helpers/superAdmin");
-const router = express.Router();
-
+const { login, logout } = require("../../helpers/productAdmin");
 const multer = require("multer");
+
+const router = express.Router();
 
 // Set up storage for uploaded files
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "public/ProductAdmins");
+    cb(null, "public/Products");
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + "-" + file.originalname);
@@ -33,27 +33,13 @@ const upload = multer({
   fileFilter: fileFilterConfig,
 });
 
-// Create the multer instance
-
 router.post(`/auth/login`, login);
 router.post(`/auth/logout`, logout);
 
-//super admin functionality
-router.get("/admin/products ");
-router.get("/admin/orders ");
-router.get("/admin/all_customers ");
-
-//manage other admins;
-router.post("/add/temp_admins");
-router.post("/add/product_admins", upload.single("productAdminImg"));
-router.post("/add/order_admins");
-router.post("/add/sales_admins");
-
-//manage product admins
-
-router.get("/view/all_productAdmins");
-router.get("/view/productAdmin/:id");
-router.put("/update/productAdmin/:id");
-router.delete("/delete/productAdmin/:id");
+//product admin functionality
+router.post("/product/add", upload.array("productImg", 6));
+router.post("/product/view_all");
+router.post("/product/edit");
+router.post("/product/delete");
 
 module.exports = router;
