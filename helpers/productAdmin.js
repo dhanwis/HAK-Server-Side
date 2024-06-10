@@ -1,4 +1,14 @@
 module.exports = {
+
+
+  //product adding;
+
+  addProduct : (req,res)=>{
+    console.log(req.body);
+  },
+
+
+  //authentication
     login: (req, res) => {
       try {
         const data = req.body; // Access data sent in the request body
