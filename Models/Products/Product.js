@@ -26,10 +26,11 @@ const productSchema = new mongoose.Schema({
       message: 'Invalid warranty document format.'
     }
   },
+
   brand: { type: String, required: true, trim: true }, // Product brand
   in_stock: { type: Boolean, default: true }, // Availability (in stock or out of stock)
   stock_quantity: { type: Number, default: 0 }, // Current stock quantity (optional)
-  seller: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Reference to the seller user
+  
   ratings: {
     type: [{
       user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // User who rated
@@ -40,5 +41,9 @@ const productSchema = new mongoose.Schema({
   },
   createdAt: { type: Date, default: Date.now }
 });
+
+
+//optional
+//seller: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Reference to the seller user
 
 module.exports = mongoose.model('Product', productSchema);

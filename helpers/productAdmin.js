@@ -3,8 +3,11 @@ module.exports = {
 
   //product adding;
 
-  addProduct : (req,res)=>{
-    console.log(req.body);
+  addProduct : async(req,res)=>{
+    
+    console.log('Product added successfully!',req.body)
+    //res.send({ message: "Product added successfully!" }); // Or handle errors
+
   },
 
 
