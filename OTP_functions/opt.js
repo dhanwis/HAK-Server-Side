@@ -7,11 +7,12 @@ const twilioClient = require("twilio")(
   process.env.TWILIO_AUTH_TOKEN
 );
 
+
 module.exports.sendOTP = async (phoneNumber) => {
   try {
     const verification = await twilioClient.verify.v2
       .services(process.env.TWILIO_VERIFY_SERVICE_SID)
-      .verifications.create({ to: phoneNumber, channel: "sms" });
+      .verifications.create({ to: `+91${phoneNumber}`, channel: "sms" });
     return verification.sid;
   } catch (error) {
     console.error(error);
