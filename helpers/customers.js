@@ -51,7 +51,7 @@ module.exports = {
       // const accessToken = generateAccessToken(user.id);
       // const refreshToken = generateRefreshToken(user.id);
       console.log("manjima", req.phone);
-      res.status(200).json({ message: "Manjima vannu" });
+      res.status(200).json({ message: "Manjima vannu pozhi Pottathi" });
     } catch (error) {
       console.error(error);
       throw new Error("Error verifying OTP");
