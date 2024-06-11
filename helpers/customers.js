@@ -23,7 +23,7 @@ module.exports = {
 
       const verification = await twilioClient.verify.v2
         .services(process.env.TWILIO_VERIFY_SERVICE_SID)
-        .verifications.create({ to: `+91${phoneNumber}`, channel: "whatsapp" });
+        .verifications.create({ to: `+91${phoneNumber}`, channel: "sms" });
 
       req.phone = phoneNumber;
       res.status(201).json({ verificationSid: verification.sid });
