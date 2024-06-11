@@ -1,12 +1,4 @@
-// const twilioClient = require("twilio")(
-//   process.env.TWILIO_ACCOUNT_SID,
-//   process.env.TWILIO_AUTH_TOKEN
-// );
-
-const dotenv = require("dotenv");
 const { sendOTP, verifyOTP } = require("../OTP_functions/opt");
-dotenv.config();
-
 
 module.exports = {
   Otp_login: async (req, res) => {
