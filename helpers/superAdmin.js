@@ -1,11 +1,29 @@
-module.exports = {
-  login: (req, res) => {
-    try {
-      const data = req.body; // Access data sent in the request body
+const jwt = require("jsonwebtoken");
 
-      // Validate and process data
-      console.log(data); // Example: Log received data
-      res.send({ message: "Data received successfully!" }); // Send a response
+module.exports = {
+  login: async (req, res) => {
+    try {
+      const { email, password } = req.body;
+
+      if (email === "admin@gmail.com" && password === "password1") {
+        
+      }
+
+      if (!user || !(await bcrypt.compare(password, user.password))) {
+        //const user = await // Your logic to find user by email
+
+        return res.status(401).send({ message: "Invalid credential" });
+      }
+
+      // Generate access and refresh tokens
+      const accessToken = generateAccessToken(user.id);
+      const refreshToken = generateRefreshToken(user.id);
+
+      res.send({
+        accessToken,
+        refreshToken,
+        message: "Login successful",
+      });
     } catch (error) {
       console.error(error);
       res.status(500).send({ message: "Internal server error" });
