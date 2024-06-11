@@ -1,9 +1,14 @@
 const express = require("express");
-const { login, logout } = require("../../helpers/customers");
+const {
+  logout,
+  Otp_login,
+  Otp_verification,
+} = require("../../helpers/customers");
 
 const router = express.Router();
 
-router.post(`/auth/login`, login);
+router.post(`/auth/login`, Otp_login);
+router.post("/auth/otp_verification", Otp_verification);
 router.post(`/auth/logout`, logout);
 
 //order admin functionality

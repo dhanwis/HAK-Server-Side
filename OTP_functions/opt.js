@@ -1,8 +1,29 @@
+const twilioClient = require("twilio")(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
 
+module.exports.sendOTP = async (phoneNumber) => {
+  try {
+    const verification = await twilioClient.verify.v2
+      .services(process.env.TWILIO_VERIFY_SERVICE_SID)
+      .verifications.create({ to: phoneNumber, channel: "sms" });
+    return verification.sid;
+  } catch (error) {
+    console.error(error);
+    throw new Error("Error sending OTP");
+  }
+};
 
-// const client = require("twilio")(accountSid, authToken);
-
-// // client.verify.v2
-// //   .services("VA156fe514f42f1df1da47c328b13d67a2")
-// //   .verifications.create({ to: "+919074434030", channel: "sms" })
-// //   .then((verification) => console.log(verification));
+module.exports.verifyOTP = async (verificationSid, code) => {
+  try {
+    const verificationCheck = await twilioClient.verify.v2
+      .services(process.env.TWILIO_VERIFY_SERVICE_SID)
+      .verifications(verificationSid)
+      .check({ code });
+    return verificationCheck.status === "approved";
+  } catch (error) {
+    console.error(error);
+    throw new Error("Error verifying OTP");
+  }
+};
