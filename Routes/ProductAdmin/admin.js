@@ -1,5 +1,5 @@
 const express = require("express");
-const { login, logout } = require("../../helpers/productAdmin");
+const { login, logout, addProduct } = require("../../helpers/productAdmin");
 const multer = require("multer");
 
 const router = express.Router();
@@ -14,15 +14,22 @@ const storage = multer.diskStorage({
   },
 });
 
-const fileFilterConfig = function (req, file, cb) {
-  const filetypes = /jpeg|jpg|png|gif/;
-  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = filetypes.test(file.mimetype);
 
-  if (mimetype && extname) {
+// File filter for handling images and warranty documents
+const fileFilter = (req, file, cb) => {
+  // Allowed extensions for images and warranty documents
+  const allowedMimeTypes = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/gif",
+    "application/pdf", // Add other document types as needed
+  ];
+
+  if (allowedMimeTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb("Error: Images only!");
+    cb(new Error("Only images and PDFs are allowed!"));
   }
 };
 
@@ -30,14 +37,18 @@ const fileFilterConfig = function (req, file, cb) {
 const upload = multer({
   storage: storage,
   limits: { fileSize: 3000000 }, //means maximum file size 2mb;
-  fileFilter: fileFilterConfig,
+  fileFilter: fileFilter,
 });
 
 router.post(`/auth/login`, login);
 router.post(`/auth/logout`, logout);
 
 //product admin functionality
-router.post("/product/add", upload.array("productImg", 6));
+router.post("/product/add", upload.fields([ // Define multiple fields for images and warranty document
+  { name: "productImg", maxCount: 6 }, // Array of up to 6 images
+  { name: "warrantyDocs", maxCount: 6 }, // Array of up to 6 warranty docs
+]),addProduct);
+
 router.post("/product/view_all");
 router.post("/product/edit");
 router.post("/product/delete");
