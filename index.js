@@ -34,6 +34,7 @@ mongoose
   .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    dbName: "HAK_E-commerce",
   })
   .then(() => {
     console.log("MongoDB connected");

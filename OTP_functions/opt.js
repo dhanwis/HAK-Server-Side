@@ -1,32 +1,26 @@
-const dotenv = require("dotenv");
-dotenv.config();
+const fast2sms = require("fast-two-sms");
+//const {FAST2SMS} = require("../config");
 
-const twilioClient = require("twilio")(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
-);
-
-module.exports.sendOTP = async (phoneNumber) => {
-  try {
-    const verification = await twilioClient.verify.v2
-      .services(process.env.TWILIO_VERIFY_SERVICE_SID)
-      .verifications.create({ to: `+91${phoneNumber}`, channel: "sms" });
-    return verification.sid;
-  } catch (error) {
-    console.error(error);
-    throw new Error("Error sending OTP");
+exports.generateOTP = (otp_length) => {
+  // Declare a digits variable
+  // which stores all digits
+  var digits = "0123456789";
+  let OTP = "";
+  for (let i = 0; i < otp_length; i++) {
+    OTP += digits[Math.floor(Math.random() * 10)];
   }
+  return OTP;
 };
 
-module.exports.verifyOTP = async (verificationSid, code) => {
+exports.fast2sms = async ({ message, contactNumber }, next) => {
   try {
-    const verificationCheck = await twilioClient.verify.v2
-      .services(process.env.TWILIO_VERIFY_SERVICE_SID)
-      .verifications(verificationSid)
-      .check({ code });
-    return verificationCheck.status === "approved";
+    const res = await fast2sms.sendMessage({
+      authorization: process.env.FAST_TWO_SMS,
+      message,
+      numbers: [contactNumber],
+    });
+    console.log("res", res);
   } catch (error) {
-    console.error(error);
-    throw new Error("Error verifying OTP");
+    next(error);
   }
 };
