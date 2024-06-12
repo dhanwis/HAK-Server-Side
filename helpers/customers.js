@@ -2,58 +2,20 @@ const {
   generateAccessToken,
   generateRefreshToken,
 } = require("../Constants/jwtTokens");
-const customers = require("../Models/Customers/customers");
 
 const dotenv = require("dotenv");
 dotenv.config();
-
-var https = require('follow-redirects').https;
 
 const twilioClient = require("twilio")(
   process.env.TWILIO_ACCOUNT_SID,
   process.env.TWILIO_AUTH_TOKEN
 );
 
-//const { fast2sms, generateOTP } = require("../OTP_functions/opt");
-
 module.exports = {
   Otp_login: async (req, res, next) => {
     try {
       const { phoneNumber } = req.body;
-      
-      var options = {
-        'method': 'POST',
-        'hostname': 'k2ggkn.api.infobip.com',
-        'path': '/2fa/2/pin?ncNeeded=true',
-        'headers': {
-            'Authorization': '{authorization}',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-        'maxRedirects': 20
-    };
     
-
-
-    
-var req = https.request(options, function (res) {
-  var chunks = [];
-
-  res.on("data", function (chunk) {
-      chunks.push(chunk);
-  });
-
-  res.on("end", function (chunk) {
-      var body = Buffer.concat(chunks);
-      console.log(body.toString());
-  });
-
-  res.on("error", function (error) {
-      console.error(error);
-  });
-});
-
-
 
       //const existingPhone = customers.find({ phoneNumber: phoneNumber });
 
@@ -61,67 +23,24 @@ var req = https.request(options, function (res) {
 
       // if (existingPhone) {
       //   console.log("user already registered");
-      //+16603338075
+      
       // }
 
-      // const verification = await twilioClient.verify.v2
-      //   .services(process.env.TWILIO_VERIFY_SERVICE_SID)
-      //   .verifications.create({ to: `+91${phoneNumber}`, channel: "sms" });
+      const verification = await twilioClient.verify.v2
+        .services(process.env.TWILIO_VERIFY_SERVICE_SID)
+        .verifications.create({ to: `+91${phoneNumber}`, channel: "sms" });
 
-      // req.phone = phoneNumber;
+      //currentNum = phoneNumber;
       res.status(201).json({ verificationSid: verification.sid });
+      next(null, phoneNumber); // Pass phoneNumber to next middleware
     } catch (error) {
       console.error(error);
       res.status(500).send({ message: "Internal server error" });
     }
-
-    // try {
-    //   const { phoneNumber } = req.body;
-
-    //   const user = await customers.findOne({ phoneNumber });
-
-    //   // generate otp
-    //   const otp = generateOTP(4);
-
-    //   console.log(user);
-
-    //   if (user) {
-    //     console.log("user is already registered");
-    //     user.updateOne({ otp: otp });
-    //   }
-
-    //   // save otp to user collection
-    //   const userData = await customers.create({
-    //     phoneNumber: phoneNumber,
-    //     otp: otp,
-    //   });
-
-    //   console.log(userData);
-
-    //   await userData.save();
-
-    //   res.status(201).json({
-    //     type: "success",
-    //     message: "OTP sended to your registered phone number",
-    //     data: {
-    //       userId: 12345,
-    //     },
-    //   });
-
-    //   // send otp to phone number
-    //   await fast2sms(
-    //     {
-    //       message: `Manji your  OTP is ${otp}`,
-    //       contactNumber: user.phoneNumber,
-    //     },
-    //     next()
-    //   );
-    // } catch (error) {
-    //   next(error);
-    // }
+  
   },
 
-  Otp_verification: async (req, res, next) => {
+  Otp_verification: async (req, res,next,phoneNumber) => {
     const { otp } = req.body;
     console.log("otp from manji", otp);
 
@@ -140,7 +59,8 @@ var req = https.request(options, function (res) {
       const accessToken = generateAccessToken(6393);
       const refreshToken = generateRefreshToken(6393);
 
-      console.log("manjima", req.phone);
+      //console.log("manjima", req.phone);
+      console.log('phoneNumber', phoneNumber); // Access phoneNumber directly
       res.status(200).json({
         message: "Manjima vannu pozhi Pottathi",
         accessToken: accessToken,
