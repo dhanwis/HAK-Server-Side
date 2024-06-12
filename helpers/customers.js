@@ -7,6 +7,8 @@ const customers = require("../Models/Customers/customers");
 const dotenv = require("dotenv");
 dotenv.config();
 
+var https = require('follow-redirects').https;
+
 const twilioClient = require("twilio")(
   process.env.TWILIO_ACCOUNT_SID,
   process.env.TWILIO_AUTH_TOKEN
@@ -18,7 +20,40 @@ module.exports = {
   Otp_login: async (req, res, next) => {
     try {
       const { phoneNumber } = req.body;
-      console.log("phone", phoneNumber);
+      
+      var options = {
+        'method': 'POST',
+        'hostname': 'k2ggkn.api.infobip.com',
+        'path': '/2fa/2/pin?ncNeeded=true',
+        'headers': {
+            'Authorization': '{authorization}',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        'maxRedirects': 20
+    };
+    
+
+
+    
+var req = https.request(options, function (res) {
+  var chunks = [];
+
+  res.on("data", function (chunk) {
+      chunks.push(chunk);
+  });
+
+  res.on("end", function (chunk) {
+      var body = Buffer.concat(chunks);
+      console.log(body.toString());
+  });
+
+  res.on("error", function (error) {
+      console.error(error);
+  });
+});
+
+
 
       //const existingPhone = customers.find({ phoneNumber: phoneNumber });
 
@@ -29,11 +64,11 @@ module.exports = {
       //+16603338075
       // }
 
-      const verification = await twilioClient.verify.v2
-        .services(process.env.TWILIO_VERIFY_SERVICE_SID)
-        .verifications.create({ to: `+91${phoneNumber}`, channel: "sms" });
+      // const verification = await twilioClient.verify.v2
+      //   .services(process.env.TWILIO_VERIFY_SERVICE_SID)
+      //   .verifications.create({ to: `+91${phoneNumber}`, channel: "sms" });
 
-      req.phone = phoneNumber;
+      // req.phone = phoneNumber;
       res.status(201).json({ verificationSid: verification.sid });
     } catch (error) {
       console.error(error);
