@@ -14,7 +14,6 @@ const storage = multer.diskStorage({
   },
 });
 
-
 // File filter for handling images and warranty documents
 const fileFilter = (req, file, cb) => {
   // Allowed extensions for images and warranty documents
@@ -44,10 +43,18 @@ router.post(`/auth/login`, login);
 router.post(`/auth/logout`, logout);
 
 //product admin functionality
-router.post("/product/add", upload.fields([ // Define multiple fields for images and warranty document
-  { name: "productImg", maxCount: 6 }, // Array of up to 6 images
-  { name: "warrantyDocs", maxCount: 6 }, // Array of up to 6 warranty docs
-]),addProduct);
+router.post(
+  "/product/add",
+  upload.array([
+    // Define multiple fields for images and warranty document
+    { name: "product_images", maxCount: 6 }, // Array of up to 6 images
+    { name: "product_warrenty_card", maxCount: 1 }, // Array of up to 6 warranty docs
+  ]),
+  (req, res) => {
+    console.log(req.body);
+    console.log(req.file);
+  }
+);
 
 router.post("/product/view_all");
 router.post("/product/edit");
