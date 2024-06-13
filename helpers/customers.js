@@ -54,8 +54,8 @@ module.exports = {
 
       res.status(200).json({
         message: "Manjima vannu pozhi Pottathi",
-        accessToken: accessToken,
-        refreshToken: refreshToken,
+        access: accessToken,
+        refresh: refreshToken,
       });
     } catch (error) {
       console.error(error);
