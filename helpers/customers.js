@@ -16,6 +16,8 @@ module.exports = {
   Otp_login: async (req, res) => {
     try {
       const { phoneNumber } = req.body;
+
+      console.log('manji adichath',phoneNumber)
     
       const verification = await twilioClient.verify.v2
         .services(process.env.TWILIO_VERIFY_SERVICE_SID)
@@ -37,15 +39,15 @@ module.exports = {
 
     try {
 
-      const verificationCheck = await twilioClient.verify.v2
-        .services(process.env.TWILIO_VERIFY_SERVICE_SID)
-        .verifications(verificationSid)
-        .check({ otp }).then((verification_check)=>console.log(verification_check.status))
-
-      // twilioClient.verify.v2
+      // const verificationCheck = await twilioClient.verify.v2
       //   .services(process.env.TWILIO_VERIFY_SERVICE_SID)
-      //   .verificationChecks.create({ to: `+918590378051`, code: otp })
-      //   .then((verification_check) => console.log(verification_check.status));
+      //   .verifications(verificationSid)
+      //   .check({ otp }).then((verification_check)=>console.log(verification_check.status))
+
+      twilioClient.verify.v2
+        .services(process.env.TWILIO_VERIFY_SERVICE_SID)
+        .verificationChecks.create({ to: `+919074434030`, code: otp })
+        .then((verification_check) => console.log(verification_check.status));
 
       //tokens generation
       const accessToken = generateAccessToken(6393);
