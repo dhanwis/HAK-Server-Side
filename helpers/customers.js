@@ -4,6 +4,7 @@ const {
 } = require("../Constants/jwtTokens");
 
 const dotenv = require("dotenv");
+const customers = require("../Models/Customers/customers");
 dotenv.config();
 
 const twilioClient = require("twilio")(
@@ -12,27 +13,17 @@ const twilioClient = require("twilio")(
 );
 
 module.exports = {
-  Otp_login: async (req, res, next) => {
+  Otp_login: async (req, res) => {
     try {
       const { phoneNumber } = req.body;
     
-
-      //const existingPhone = customers.find({ phoneNumber: phoneNumber });
-
-      //console.log("existingPhone", existingPhone);
-
-      // if (existingPhone) {
-      //   console.log("user already registered");
-      
-      // }
-
       const verification = await twilioClient.verify.v2
         .services(process.env.TWILIO_VERIFY_SERVICE_SID)
         .verifications.create({ to: `+91${phoneNumber}`, channel: "sms" });
 
-      //currentNum = phoneNumber;
-      res.status(201).json({ verificationSid: verification.sid });
-      next(null, phoneNumber); // Pass phoneNumber to next middleware
+      console.log(verification)
+      res.status(201).json({ verificationSid: verification.sid });//server sendint an id to client (verifcationSid)
+
     } catch (error) {
       console.error(error);
       res.status(500).send({ message: "Internal server error" });
@@ -40,20 +31,21 @@ module.exports = {
   
   },
 
-  Otp_verification: async (req, res,next,phoneNumber) => {
-    const { otp } = req.body;
+  Otp_verification: async (req, res) => {
+    const { otp,verificationSid } = req.body;
     console.log("otp from manji", otp);
 
     try {
-      // const verificationCheck = await twilioClient.verify.v2
-      //   .services(process.env.TWILIO_VERIFY_SERVICE_SID)
-      //   .verifications(verificationSid)
-      //   .check({ otp });
 
-      twilioClient.verify.v2
+      const verificationCheck = await twilioClient.verify.v2
         .services(process.env.TWILIO_VERIFY_SERVICE_SID)
-        .verificationChecks.create({ to: `+918590378051`, code: otp })
-        .then((verification_check) => console.log(verification_check.status));
+        .verifications(verificationSid)
+        .check({ otp }).then((verification_check)=>console.log(verification_check.status))
+
+      // twilioClient.verify.v2
+      //   .services(process.env.TWILIO_VERIFY_SERVICE_SID)
+      //   .verificationChecks.create({ to: `+918590378051`, code: otp })
+      //   .then((verification_check) => console.log(verification_check.status));
 
       //tokens generation
       const accessToken = generateAccessToken(6393);
@@ -82,4 +74,8 @@ module.exports = {
   },
 
   logout: () => {},
+
+  customer_profile_creation : (req,res)=>{
+    
+  }
 };
