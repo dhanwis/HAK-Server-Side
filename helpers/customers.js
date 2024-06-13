@@ -17,28 +17,25 @@ module.exports = {
     try {
       const { phoneNumber } = req.body;
 
-      console.log('manji adichath',phoneNumber)
-    
+      console.log("manji adichath", phoneNumber);
+
       const verification = await twilioClient.verify.v2
         .services(process.env.TWILIO_VERIFY_SERVICE_SID)
         .verifications.create({ to: `+91${phoneNumber}`, channel: "sms" });
 
-      console.log(verification)
-      res.status(201).json({ verificationSid: verification.sid });//server sendint an id to client (verifcationSid)
-
+      console.log(verification);
+      res.status(201).json({ verificationSid: verification.sid }); //server sendint an id to client (verifcationSid)
     } catch (error) {
       console.error(error);
       res.status(500).send({ message: "Internal server error" });
     }
-  
   },
 
   Otp_verification: async (req, res) => {
-    const { otp,verificationSid } = req.body;
+    const { otp, verificationSid } = req.body;
     console.log("otp from manji", otp);
 
     try {
-
       // const verificationCheck = await twilioClient.verify.v2
       //   .services(process.env.TWILIO_VERIFY_SERVICE_SID)
       //   .verifications(verificationSid)
@@ -54,7 +51,7 @@ module.exports = {
       const refreshToken = generateRefreshToken(6393);
 
       //console.log("manjima", req.phone);
-      console.log('phoneNumber', phoneNumber); // Access phoneNumber directly
+
       res.status(200).json({
         message: "Manjima vannu pozhi Pottathi",
         accessToken: accessToken,
@@ -77,7 +74,5 @@ module.exports = {
 
   logout: () => {},
 
-  customer_profile_creation : (req,res)=>{
-    
-  }
+  customer_profile_creation: (req, res) => {},
 };
