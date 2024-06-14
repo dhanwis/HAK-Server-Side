@@ -4,32 +4,6 @@ const multer = require("multer");
 
 const router = express.Router();
 
-
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    console.log(file);
-      cb(null, '/tmp/');
-  },
-  filename: (req, file, cb) => {
-      const fileName = file.originalname.toLowerCase().split(' ').join('-');
-      cb(null, fileName)
-  }
-});
-
-var upload = multer({
-  storage: storage,
-  fileFilter: (req, file, cb) => {
-      if (file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg") {
-          cb(null, true);
-      } else {
-          cb(null, false);
-          req.error = 'Only .png, .jpg and .jpeg allowed';
-          return cb(null, false, new Error('Only .png, .jpg and .jpeg format allowed!'));
-      }
-  }
-});
-
 // Set up Multer storage for images
 const imageStorage = multer.diskStorage({
   destination: function (req, file, cb) {
