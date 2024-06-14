@@ -7,7 +7,8 @@ const router = express.Router();
 // Set up storage for uploaded files
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "public/Products");
+    console.log(file)
+    cb(null, "public/ProductImg");
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + "-" + file.originalname);
@@ -22,13 +23,12 @@ const fileFilter = (req, file, cb) => {
     "image/jpg",
     "image/png",
     "image/gif",
-    "application/pdf", // Add other document types as needed
   ];
 
   if (allowedMimeTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error("Only images and PDFs are allowed!"));
+    cb(new Error("Only images are allowed!"));
   }
 };
 
@@ -45,14 +45,10 @@ router.post(`/auth/logout`, logout);
 //product admin functionality
 router.post(
   "/product/add",
-  upload.array([
-    // Define multiple fields for images and warranty document
-    { name: "product_images", maxCount: 6 }, // Array of up to 6 images
-    { name: "product_warrenty_card", maxCount: 1 }, // Array of up to 6 warranty docs
-  ]),
+  upload.array('product_images',6),
   (req, res) => {
     console.log(req.body);
-    console.log(req.file);
+    console.log(req.files);
   }
 );
 
