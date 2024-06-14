@@ -68,11 +68,9 @@ router.post(`/auth/logout`, logout);
 // Route to handle product addition
 router.post(
   "/product/add",
-  // [
-  //   imageUpload.array("product_images", 6),
-  //   pdfUpload.single("product_warranty_card"),
-  // ],
-  upload.any(),
+   
+  imageUpload.array('photo',2),
+  pdfUpload.single('docs'),
   (req, res) => {
     // Access form fields and uploaded files using req.body and req.files respectively
     const productData = req.body;
