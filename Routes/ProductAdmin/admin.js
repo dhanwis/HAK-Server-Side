@@ -5,116 +5,44 @@ const multer = require("multer");
 const router = express.Router();
 
 
-
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    console.log(file);
-      cb(null, '/tmp/');
-  },
-  filename: (req, file, cb) => {
-      const fileName = file.originalname.toLowerCase().split(' ').join('-');
-      cb(null, fileName)
-  }
-});
-
-var upload = multer({
-  storage: storage,
-  fileFilter: (req, file, cb) => {
-      if (file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg") {
-          cb(null, true);
-      } else {
-          cb(null, false);
-          req.error = 'Only .png, .jpg and .jpeg allowed';
-          return cb(null, false, new Error('Only .png, .jpg and .jpeg format allowed!'));
-      }
-  }
-});
-
-// Set up Multer storage for images
-const imageStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    // Specify the directory where image files will be stored
-    console.log(file);
-    cb(null, "uploads/ProductImages/");
+    cb(null, 'uploads/'); // Change path as needed
   },
   filename: function (req, file, cb) {
-    // Specify the filename for image files
-    cb(null, file.originalname);
-  },
-});
-
-// Set up Multer storage for PDFs
-const pdfStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    // Specify the directory where PDF files will be stored
-    console.log(file);
-    cb(null, "uploads/ProductDocs/");
-  },
-  filename: function (req, file, cb) {
-    // Specify the filename for PDF files
-    cb(null, file.originalname);
-  },
-});
-
-// File filter function for images
-const imageFileFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith("image/")) {
-    cb(null, true); // Accept image file
-  } else {
-    cb(new Error("Only images are allowed")); // Reject non-image file
+    cb(null, Date.now() + '-' + file.originalname);
   }
-};
-
-// File filter function for PDFs
-const pdfFileFilter = (req, file, cb) => {
-  if (file.mimetype === "application/pdf") {
-    console.log(file);
-    cb(null, true); // Accept PDF file
-  } else {
-    cb(new Error("Only PDF files are allowed")); // Reject non-PDF file
-  }
-};
-
-// Initialize Multer upload instances for images and PDFs
-const imageUpload = multer({
-  storage: imageStorage,
-  fileFilter: imageFileFilter,
-  limits: { fileSize: 3 * 1024 * 1024 },
-});
-const pdfUpload = multer({
-  storage: pdfStorage,
-  fileFilter: pdfFileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-router.post(`/auth/login`, login);
-router.post(`/auth/logout`, logout);
+const upload = multer({ storage: storage }); // Use default single file handling
+const uploadMultiple = upload.array('photo'); // Allow multiple images with field name 'photo'
 
-//product admin functionality
-// Route to handle product addition
-router.post(
-  "/product/add",
-  // [
-  //   imageUpload.array("product_images", 6),
-  //   pdfUpload.single("product_warranty_card"),
-  // ],
-  upload.any(),
-  (req, res) => {
-    // Access form fields and uploaded files using req.body and req.files respectively
-    const productData = req.body;
-    // const productImages = req.files.product_images;
-    // const warrantyCard = req.file.product_warranty_card;
+// Route for adding product
+router.post('/product/add', uploadMultiple, (req, res) => {
+  try {
+    // Access form data (excluding files)
+    const productData = req.body; // { uname, email, price }
+    console.log(productData)
+    console.log(req.files)
 
-    console.log(productData);
-    // console.log(productImages);
-    // console.log(warrantyCard);
+    // Access uploaded images (array of files)
+    // const uploadedImages = req.files['photo'];
 
-    // Process the product data, images, and warranty card as needed
-    // Example: Save product data, images, and warranty card to database
+    // // Perform validation (optional)
+    // if (uploadedImages.length === 0) {
+    //   throw new Error('Please select at least one image file.');
+    // }
 
-    res.send("Product added successfully");
+    // Process product data and images (e.g., save files to disk, create database entries)
+    // ... your logic here ...
+
+    res.json({ message: 'Product added successfully!' });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: error.message || 'Failed to add product' }); // Send appropriate error message
   }
-);
+});
+
 
 router.post("/product/view_all");
 router.post("/product/edit");
