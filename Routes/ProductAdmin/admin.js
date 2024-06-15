@@ -4,12 +4,11 @@ const multer = require("multer");
 
 const router = express.Router();
 
-// Set up Multer storage for images
-const imageStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    // Specify the directory where image files will be stored
-    console.log(file);
-    cb(null, "uploads/ProductImages/");
+// Set up storage for uploaded files
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    console.log(file)
+    cb(null, "public/ProductImg");
   },
   filename: function (req, file, cb) {
     // Specify the filename for image files
@@ -30,22 +29,20 @@ const pdfStorage = multer.diskStorage({
   },
 });
 
-// File filter function for images
-const imageFileFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith("image/")) {
-    cb(null, true); // Accept image file
-  } else {
-    cb(new Error("Only images are allowed")); // Reject non-image file
-  }
-};
+// File filter for handling images and warranty documents
+const fileFilter = (req, file, cb) => {
+  // Allowed extensions for images and warranty documents
+  const allowedMimeTypes = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/gif",
+  ];
 
-// File filter function for PDFs
-const pdfFileFilter = (req, file, cb) => {
-  if (file.mimetype === "application/pdf") {
-    console.log(file);
-    cb(null, true); // Accept PDF file
+  if (allowedMimeTypes.includes(file.mimetype)) {
+    cb(null, true);
   } else {
-    cb(new Error("Only PDF files are allowed")); // Reject non-PDF file
+    cb(new Error("Only images are allowed!"));
   }
 };
 
@@ -68,23 +65,10 @@ router.post(`/auth/logout`, logout);
 // Route to handle product addition
 router.post(
   "/product/add",
-   
-  imageUpload.array('photo',2),
-  pdfUpload.single('docs'),
+  upload.array('product_images',6),
   (req, res) => {
-    // Access form fields and uploaded files using req.body and req.files respectively
-    const productData = req.body;
-    // const productImages = req.files.product_images;
-    // const warrantyCard = req.file.product_warranty_card;
-
-    console.log(productData);
-    // console.log(productImages);
-    // console.log(warrantyCard);
-
-    // Process the product data, images, and warranty card as needed
-    // Example: Save product data, images, and warranty card to database
-
-    res.send("Product added successfully");
+    console.log(req.body);
+    console.log(req.files);
   }
 );
 
