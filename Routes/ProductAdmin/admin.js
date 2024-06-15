@@ -1,34 +1,36 @@
 const express = require("express");
 const { login, logout, addProduct } = require("../../helpers/productAdmin");
 const multer = require("multer");
+const fs = require("fs");
+const { v4: uuidv4 } = require("uuid");
 
 const router = express.Router();
 
 // Set up storage for uploaded files
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    console.log(file)
-    cb(null, "public/ProductImg");
+    // This function will be called for each file individually
+    // Use the product name sent as part of the request body to dynamically create folders
+    const productName = req.body.product_name;
+    const uploadPath = `public/ProductImg/${productName}`;
+
+    // Create the directory if it doesn't exist
+    fs.mkdirSync(uploadPath, { recursive: true });
+
+    // Set the destination for storing files
+    cb(null, uploadPath);
   },
-  filename: function (req, file, cb) {
-    // Specify the filename for image files
-    cb(null, file.originalname);
+  filename: (req, file, cb) => {
+    // Generate a unique identifier for the filename using uuidv4()
+    const uniqueFilename = uuidv4(); // This will generate a unique identifier
+
+    // Get the original filename to maintain some context
+    const originalname = file.originalname;
+
+    // Combine the unique identifier with the original filename (or customize as needed)
+    cb(null, uniqueFilename + "-" + originalname);
   },
 });
-
-// Set up Multer storage for PDFs
-const pdfStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    // Specify the directory where PDF files will be stored
-    console.log(file);
-    cb(null, "uploads/ProductDocs/");
-  },
-  filename: function (req, file, cb) {
-    // Specify the filename for PDF files
-    cb(null, file.originalname);
-  },
-});
-
 // File filter for handling images and warranty documents
 const fileFilter = (req, file, cb) => {
   // Allowed extensions for images and warranty documents
@@ -46,31 +48,18 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Initialize Multer upload instances for images and PDFs
-const imageUpload = multer({
-  storage: imageStorage,
-  fileFilter: imageFileFilter,
-  limits: { fileSize: 3 * 1024 * 1024 },
-});
-const pdfUpload = multer({
-  storage: pdfStorage,
-  fileFilter: pdfFileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 },
+// Initialize multer upload middleware
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 3000000 }, //means maximum file size 3mb;
+  fileFilter: fileFilter,
 });
 
 router.post(`/auth/login`, login);
 router.post(`/auth/logout`, logout);
 
 //product admin functionality
-// Route to handle product addition
-router.post(
-  "/product/add",
-  upload.array('product_images',6),
-  (req, res) => {
-    console.log(req.body);
-    console.log(req.files);
-  }
-);
+router.post("/product/add", upload.array("product_images", 6), addProduct);
 
 router.post("/product/view_all");
 router.post("/product/edit");
