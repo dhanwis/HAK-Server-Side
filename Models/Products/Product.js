@@ -23,8 +23,14 @@ const productSchema = new mongoose.Schema({
     },
   },
   product_features: { type: String, required: true },
-  product_publish_date: {},
-  product_publish_time: {},
+  product_publish_date: {
+    type: Date,
+    required: true 
+  },
+  product_publish_time: {
+    type: String,  
+    required: true  
+  },
   product_publish_status: { type: String, required: true },
   product_availability: { type: String, required: true }, // Availability (in stock or out of stock)
 
