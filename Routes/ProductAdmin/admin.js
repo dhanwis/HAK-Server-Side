@@ -67,9 +67,10 @@ router.post(`/auth/logout`, logout);
 //product admin functionality
 router.post("/product/add", upload.array("product_images", 6), addProduct);
 
-router.post("/product/view_all_products", getAllProduct);
+
 router.post("/product/edit");
 router.post("/product/delete");
+router.get("/product/view_all_products", getAllProduct);
 
 // Category routes
 router.post("category/add-category", addCategory);

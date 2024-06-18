@@ -91,6 +91,7 @@ module.exports = {
   },
 
   getAllProduct: async (req, res) => {
+    console.log('hai');
     try {
       const products = await Product.find();
       res.status(200).send(products);
