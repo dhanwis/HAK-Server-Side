@@ -90,8 +90,41 @@ module.exports = {
     }
   },
 
+  updateProduct: async (req, res) => {
+    const productId = req.params.id;
+    const updates = req.body;
+
+    try {
+      const updatedProduct = await Product.findByIdAndUpdate(
+        productId,
+        updates,
+        { new: true }
+      );
+      if (!updatedProduct) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+      res.status(200).json(updatedProduct);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  deleteProduct: async (req, res) => {
+    const productId = req.params.id;
+
+    try {
+      const deletedProduct = await Product.findByIdAndDelete(productId);
+      if (!deletedProduct) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+      res.status(200).json({ message: "Product deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
   getAllProduct: async (req, res) => {
-    console.log('hai');
+    console.log("hai");
     try {
       const products = await Product.find();
       res.status(200).send(products);
@@ -111,6 +144,26 @@ module.exports = {
       res.status(200).json(product);
     } catch (error) {
       res.status(500).json({ error: error.message });
+    }
+  },
+
+  getProductByCategory: async (req, res) => {
+    try {
+      const { categoryName } = req.params;
+
+      // Find the category by name
+      const category = await Category.findOne({ name: categoryName.trim() });
+      if (!category) {
+        return res.status(404).send("Category not found");
+      }
+
+      // Find products by category ObjectId
+      const products = await Product.find({
+        product_category: category._id,
+      }).populate("product_category");
+      res.status(200).send(products);
+    } catch (error) {
+      res.status(500).send(error.message);
     }
   },
 };
