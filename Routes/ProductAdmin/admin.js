@@ -1,9 +1,14 @@
 const express = require("express");
-const { login, logout, addProduct } = require("../../helpers/productAdmin");
+const { login, logout, addProduct, getAllProduct } = require("../../helpers/productAdmin");
 const multer = require("multer");
 const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
-const {addCategory,deleteCategory,getCategories,updateCategory} = require('../../helpers/categories')
+const {
+  addCategory,
+  deleteCategory,
+  getCategories,
+  updateCategory,
+} = require("../../helpers/categories");
 
 const router = express.Router();
 
@@ -62,15 +67,14 @@ router.post(`/auth/logout`, logout);
 //product admin functionality
 router.post("/product/add", upload.array("product_images", 6), addProduct);
 
-router.post("/product/view_all");
+router.post("/product/view_all_products", getAllProduct);
 router.post("/product/edit");
 router.post("/product/delete");
 
-
 // Category routes
-router.post('category/add-category', addCategory);
-router.get('category/categories', getCategories);
-router.put('category/update-category/:id', updateCategory);
-router.delete('category/delete-category/:id', deleteCategory);
+router.post("category/add-category", addCategory);
+router.get("category/categories", getCategories);
+router.put("category/update-category/:id", updateCategory);
+router.delete("category/delete-category/:id", deleteCategory);
 
 module.exports = router;
