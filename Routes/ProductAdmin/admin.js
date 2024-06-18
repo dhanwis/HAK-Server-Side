@@ -26,14 +26,14 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     // This function will be called for each file individually
     // Use the product name sent as part of the request body to dynamically create folders
-    const productName = req.body.product_name;
-    const uploadPath = `public/ProductImg/${productName}`;
+    // const productName = req.body.product_name;
+    // const uploadPath = `public/ProductImg/${productName}`;
 
     // Create the directory if it doesn't exist
-    fs.mkdirSync(uploadPath, { recursive: true });
+    //fs.mkdirSync(uploadPath, { recursive: true });
 
     // Set the destination for storing files
-    cb(null, uploadPath);
+    cb(null, 'public/ProductImg/');
   },
   filename: (req, file, cb) => {
     // Generate a unique identifier for the filename using uuidv4()

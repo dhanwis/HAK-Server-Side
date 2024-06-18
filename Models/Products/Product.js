@@ -22,6 +22,7 @@ const productSchema = new mongoose.Schema({
       message: "At least 2 product images is required.",
     },
   },
+  relatedProducts: { type: [mongoose.Schema.Types.ObjectId], ref: 'Product' },
   product_features: { type: String, required: true },
   product_publish_date: {
     type: Date,
