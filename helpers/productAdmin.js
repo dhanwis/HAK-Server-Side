@@ -21,8 +21,10 @@ module.exports = {
   //product_functions;
 
   addProduct: async (req, res) => {
-    console.log("hai");
+    console.log(req.body);
     try {
+      // Access the uploaded files
+
       const {
         product_name,
         product_description,
@@ -34,14 +36,34 @@ module.exports = {
         product_color,
         product_features,
         product_publish_status,
-        product_availability,
-        product_tags,
+        // product_availability,
+        //product_tags,
+        similar_products,
         product_brand,
         product_stock_quantity,
       } = req.body;
 
+      console.log("file", req.files);
       // Get the paths of the uploaded images
-      const product_images = req.files.map((file) => file.filename);
+      //const product_images = req.files.map((file) => file.filename);
+      const productImages = req.files["product_images"] || [];
+      const similarProductImages = req.files["similar_product_images"] || [];
+
+      //const productData = JSON.parse(req.body.productData);
+
+      // Save product data and image paths to your database
+      const product_images = productImages.map((file) => file.path);
+
+      similar_products.forEach((similarProduct, index) => {
+        similarProduct.product_images = similarProductImages
+          .slice(
+            (index * similarProductImages.length) /
+              similar_products.length,
+            ((index + 1) * similarProductImages.length) /
+              similar_products.length
+          )
+          .map((file) => file.path);
+      });
 
       // Validate product data before saving
       if (!Array.isArray(product_features)) {
@@ -69,10 +91,11 @@ module.exports = {
         product_images,
         product_features: product_features.join(", "),
         product_publish_status,
-        product_availability,
-        product_tags,
+        //product_availability,
+        //product_tags,
         product_brand,
         product_stock_quantity,
+        similar_products,
       });
 
       // Save the new product to the database

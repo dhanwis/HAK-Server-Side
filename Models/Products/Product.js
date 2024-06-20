@@ -22,7 +22,7 @@ const productSchema = new mongoose.Schema({
       message: "At least 2 product images is required.",
     },
   },
-  relatedProducts: { type: [mongoose.Schema.Types.ObjectId], ref: 'Product' },
+  similar_products: { type: [mongoose.Schema.Types.ObjectId], ref: 'Product' },
   product_features: { type: String, required: true },
   product_publish_date: {
     type: Date,
@@ -33,9 +33,9 @@ const productSchema = new mongoose.Schema({
     required: true  
   },
   product_publish_status: { type: String, required: true },
-  product_availability: { type: String, required: true }, // Availability (in stock or out of stock)
+ //product_availability: { type: String, required: true }, // Availability (in stock or out of stock)
 
-  product_tags: { type: Array, require: true },
+ //product_tags: { type: Array, require: true },
 
   product_brand: { type: String, required: true, trim: true }, // Product brand
 
