@@ -12,25 +12,25 @@ const productSchema = new mongoose.Schema({
   },
   product_weight: { type: Number, required: false },
   product_size: { type: String, required: true },
-  product_color: { type: [String], required: true }, // Array of colors to handle multiple color options
+  product_color: { type: [String], required: true },
   product_images: {
     type: [String],
     required: true,
     validate: {
-      validator: (images) => images.length > 2,
-      message: "At least 3 product images are required.",
+      validator: (images) => images.length > 1,
+      message: "At least 2 product images are required.",
     },
   },
-  similar_products: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }], // Array of product IDs for similar products
+  similar_products: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
   product_features: { type: String, required: true },
   product_publish_date: { type: Date, required: true },
   product_publish_time: { type: String, required: true },
   product_publish_status: { type: String, required: true },
   product_availability: { type: String, required: true },
-  product_tags: { type: [String], required: true }, // Array of tags for better search and categorization
+  product_tags: { type: [String], required: true },
   product_brand: { type: String, required: true, trim: true },
   product_stock_quantity: { type: Number, required: true },
-  parent_product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', default: null } // Field to link variations of the same product
+  parent_product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', default: null }
 });
 
 const Product = mongoose.model('Product', productSchema);

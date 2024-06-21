@@ -43,23 +43,15 @@ module.exports = {
         parent_product,
       } = req.body;
 
-      if (!Array.isArray(product_features)) {
-        throw new Error("product_features must be an array");
-      }
-      // Look up the category by name to get its ObjectId, or create a new category if it doesn't exist
-      let category = await Category.findOne({ name: product_category.trim() });
-      if (!category) {
-        category = new Category({ name: product_category.trim() });
-        await category.save();
-      }
-      const categoryId = category._id;
+      
 
+      // Create the new product
       const newProduct = new Product({
         product_name,
         product_description,
         product_cost,
         product_discount,
-        product_category: categoryId,
+        product_category,
         product_weight,
         product_size,
         product_color,
@@ -75,11 +67,37 @@ module.exports = {
         parent_product,
       });
 
+      // Save the product to the database
       const savedProduct = await newProduct.save();
+
+      // Find similar products based on category and tags
+      const similarProducts = await Product.find({
+        product_category: savedProduct.product_category,
+        product_tags: { $in: savedProduct.product_tags },
+        _id: { $ne: savedProduct._id }, // Exclude the newly added product
+      }).limit(10); // Adjust the limit as necessary
+
+      // Update the new product with similar products
+      savedProduct.similar_products = similarProducts.map(
+        (product) => product._id
+      );
+      await savedProduct.save();
 
       res.status(201).json(savedProduct);
     } catch (error) {
-      res.status(500).json({ message: "Error adding product", error });
+      if (
+        error.code === 11000 &&
+        error.keyPattern &&
+        error.keyPattern.productId === 1
+      ) {
+        // Handle duplicate key error for productId
+        console.log("Duplicate productId found");
+        res.status(400).json({ error: "Duplicate productId found." });
+      } else {
+        // Handle other errors
+        console.error("Error:", error);
+        res.status(500).json({ error: "Internal server error." });
+      }
     }
   },
 
@@ -126,17 +144,16 @@ module.exports = {
     }
   },
 
-  getProductById: async () => {
-    const productId = req.params.id;
-
+  getProductById: async (req, res) => {
     try {
-      const product = await Product.findById(productId);
+      const product = await Product.findById(req.params.id)
+        .populate('product_category similar_products parent_product');
       if (!product) {
-        return res.status(404).json({ message: "Product not found" });
+        return res.status(404).json({ message: 'Product not found' });
       }
-      res.status(200).json(product);
+      res.json(product);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ message: 'Error fetching product', error });
     }
   },
 
