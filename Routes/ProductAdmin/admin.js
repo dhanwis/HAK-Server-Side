@@ -47,12 +47,29 @@ const createDirectories = (productId) => {
 // Define storage for the images
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
+    //const productId = req.body.product_id; // Ensure this is sent in the form data
+    //createDirectories(productId);
+    // if (file.fieldname.startsWith("product_images")) {
+    //   cb(null, path.join(__dirname, "uploads", "products", productId));
+    // } else if (file.fieldname.startsWith("similar_product_images")) {
+    //   cb(null, path.join(__dirname, "uploads", "similar_products", productId));
+    // }
+
     const productId = req.body.product_id; // Ensure this is sent in the form data
-    createDirectories(productId);
+
+    const mainProductPath = path.join(
+      __dirname,
+      "uploads",
+      "products",
+      productId
+    );
+
+    if (!fs.existsSync(mainProductPath)) {
+      fs.mkdirSync(mainProductPath, { recursive: true });
+    }
+
     if (file.fieldname.startsWith("product_images")) {
-      cb(null, path.join(__dirname, "uploads", "products", productId));
-    } else if (file.fieldname.startsWith("similar_product_images")) {
-      cb(null, path.join(__dirname, "uploads", "similar_products", productId));
+      cb(null, path.join(__dirname, "uploads", "products",productId));
     }
   },
   filename: function (req, file, cb) {
@@ -66,7 +83,6 @@ const upload = multer({
   limits: { fileSize: 1024 * 1024 * 5 }, // Limit file size to 5MB
 });
 
-
 // // Middleware to handle multiple file fields
 // const multipleUpload = upload.fields([
 //   { name: "product_images", maxCount: 10 }, // Main product images
@@ -77,7 +93,7 @@ router.post(`/auth/login`, login);
 router.post(`/auth/logout`, logout);
 
 //product admin functionality
-router.post("/product/add", multipleUpload, addProduct);
+router.post("/product/add", upload.array("product_images", 6), addProduct);
 
 router.post("/product/edit", updateProduct);
 router.post("/product/delete", deleteProduct);
