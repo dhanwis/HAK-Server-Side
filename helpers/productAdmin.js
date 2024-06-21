@@ -31,7 +31,7 @@ module.exports = {
         product_weight,
         product_size,
         product_color,
-        product_images,
+
         product_features,
         product_publish_date,
         product_publish_time,
@@ -43,7 +43,21 @@ module.exports = {
         parent_product,
       } = req.body;
 
-      
+      const productImg = req.files.map((file) => {
+        return file.filename;
+      });
+
+      // Validate product data before saving
+      if (!Array.isArray(product_features)) {
+        throw new Error("product_features must be an array");
+      }
+      // Look up the category by name to get its ObjectId, or create a new category if it doesn't exist
+      let category = await Category.findOne({ name: product_category.trim() });
+      if (!category) {
+        category = new Category({ name: product_category.trim() });
+        await category.save();
+      }
+      const categoryId = category._id;
 
       // Create the new product
       const newProduct = new Product({
@@ -51,12 +65,12 @@ module.exports = {
         product_description,
         product_cost,
         product_discount,
-        product_category,
+        product_category: categoryId,
         product_weight,
         product_size,
         product_color,
-        product_images,
-        product_features,
+        product_images: productImg,
+        product_features: product_features.join(", "),
         product_publish_date,
         product_publish_time,
         product_publish_status,
@@ -146,14 +160,15 @@ module.exports = {
 
   getProductById: async (req, res) => {
     try {
-      const product = await Product.findById(req.params.id)
-        .populate('product_category similar_products parent_product');
+      const product = await Product.findById(req.params.id).populate(
+        "product_category similar_products parent_product"
+      );
       if (!product) {
-        return res.status(404).json({ message: 'Product not found' });
+        return res.status(404).json({ message: "Product not found" });
       }
       res.json(product);
     } catch (error) {
-      res.status(500).json({ message: 'Error fetching product', error });
+      res.status(500).json({ message: "Error fetching product", error });
     }
   },
 
