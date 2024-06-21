@@ -66,11 +66,12 @@ const upload = multer({
   limits: { fileSize: 1024 * 1024 * 5 }, // Limit file size to 5MB
 });
 
-// Middleware to handle multiple file fields
-const multipleUpload = upload.fields([
-  { name: "product_images", maxCount: 10 }, // Main product images
-  { name: "similar_product_images", maxCount: 50 }, // Similar product images
-]);
+
+// // Middleware to handle multiple file fields
+// const multipleUpload = upload.fields([
+//   { name: "product_images", maxCount: 10 }, // Main product images
+//   { name: "similar_product_images", maxCount: 50 }, // Similar product images
+// ]);
 
 router.post(`/auth/login`, login);
 router.post(`/auth/logout`, logout);
