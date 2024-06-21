@@ -43,12 +43,23 @@ module.exports = {
         parent_product,
       } = req.body;
 
+      if (!Array.isArray(product_features)) {
+        throw new Error("product_features must be an array");
+      }
+      // Look up the category by name to get its ObjectId, or create a new category if it doesn't exist
+      let category = await Category.findOne({ name: product_category.trim() });
+      if (!category) {
+        category = new Category({ name: product_category.trim() });
+        await category.save();
+      }
+      const categoryId = category._id;
+
       const newProduct = new Product({
         product_name,
         product_description,
         product_cost,
         product_discount,
-        product_category,
+        product_category: categoryId,
         product_weight,
         product_size,
         product_color,
