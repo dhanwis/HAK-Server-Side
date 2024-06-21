@@ -33,25 +33,25 @@ const productSchema = new mongoose.Schema({
     required: true  
   },
   product_publish_status: { type: String, required: true },
- //product_availability: { type: String, required: true }, // Availability (in stock or out of stock)
+ product_availability: { type: String, required: true }, // Availability (in stock or out of stock)
 
- //product_tags: { type: Array, require: true },
+ product_tags: { type: Array, require: true },
 
   product_brand: { type: String, required: true, trim: true }, // Product brand
 
   product_stock_quantity: { type: Number, required: true }, // Current stock quantity (optional)
 
-  product_ratings: {
-    type: [
-      {
-        user: { type: mongoose.Schema.Types.ObjectId, ref: "Customer" }, // User who rated
-        rating: { type: Number, required: true, min: 1, max: 5 }, // Rating score (1-5)
-        review: { type: String, trim: true }, // Optional review text
-      },
-    ],
-    default: [],
-  },
-  createdAt: { type: Date, default: Date.now },
+  // product_ratings: {
+  //   type: [
+  //     {
+  //       user: { type: mongoose.Schema.Types.ObjectId, ref: "Customer" }, // User who rated
+  //       rating: { type: Number, required: true, min: 1, max: 5 }, // Rating score (1-5)
+  //       review: { type: String, trim: true }, // Optional review text
+  //     },
+  //   ],
+  //   default: [],
+  // },
+  //createdAt: { type: Date, default: Date.now },
 });
 
 //optional

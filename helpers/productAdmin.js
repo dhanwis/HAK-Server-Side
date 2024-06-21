@@ -24,7 +24,6 @@ module.exports = {
     console.log(req.body);
     try {
       // Access the uploaded files
-
       const {
         product_name,
         product_description,
@@ -43,7 +42,6 @@ module.exports = {
         product_stock_quantity,
       } = req.body;
 
-      console.log("file", req.files);
       // Get the paths of the uploaded images
       //const product_images = req.files.map((file) => file.filename);
       const productImages = req.files["product_images"] || [];
@@ -57,8 +55,7 @@ module.exports = {
       similar_products.forEach((similarProduct, index) => {
         similarProduct.product_images = similarProductImages
           .slice(
-            (index * similarProductImages.length) /
-              similar_products.length,
+            (index * similarProductImages.length) / similar_products.length,
             ((index + 1) * similarProductImages.length) /
               similar_products.length
           )
@@ -74,7 +71,6 @@ module.exports = {
       if (!category) {
         category = new Category({ name: product_category.trim() });
         await category.save();
-        console.log("missmatch");
       }
       const categoryId = category._id;
 
