@@ -45,27 +45,38 @@ module.exports = {
         parent_product,
       } = req.body;
 
-      const productImg = req.files.map((file) => {
-        return file.filename;
-      });
+      console.log("Received product ID:", product_id); // Log the received product ID
+
+      // Validate product_id
+      if (!product_id) {
+        throw new Error("product_id is required");
+      }
+
+      // Handle product images
+      let productImg = [];
+      if (req.files && req.files.length > 2) {
+        productImg = req.files.map((file) => file.filename);
+      } else {
+        throw new Error("Product Image should be multiple.");
+      }
 
       // Validate product data before saving
       if (!Array.isArray(product_features)) {
         throw new Error("product_features must be an array");
       }
+
       // Look up the category by name to get its ObjectId, or create a new category if it doesn't exist
       let category = await Category.findOne({ name: product_category.trim() });
-      console.log('c',category)
+
       if (!category) {
         category = new Category({ name: product_category.trim() });
-        console.log('new')
         await category.save();
       }
       const categoryId = category._id;
 
       // Create the new product
       const newProduct = new Product({
-        product_id,
+        product_id: product_id,
         product_name,
         product_description,
         product_cost,
@@ -88,46 +99,38 @@ module.exports = {
         parent_product,
       });
 
-      console.log('newproduct',newProduct)
-
       // Save the product to the database
       const savedProduct = await newProduct.save();
-      console.log('savedProduct.product_category',savedProduct.product_category)
 
       // Find similar products based on multiple criteria
-    const similarProducts = await Product.find({
-      product_category: savedProduct.product_category,
-      product_tags: { $in: savedProduct.product_tags },
-      product_brand: savedProduct.product_brand,
-      product_cost: { $gte: savedProduct.product_cost * 0.8, $lte: savedProduct.product_cost * 1.2 }, // within 20% price range
-      _id: { $ne: savedProduct._id } // Exclude the newly added product
-    }).limit(10); // Adjust the limit as necessary
+      const similarProducts = await Product.find({
+        product_category: savedProduct.product_category,
+        product_tags: { $in: savedProduct.product_tags },
+        product_brand: savedProduct.product_brand,
+        // product_cost: {
+        //   $gte: savedProduct.product_cost * 0.8,
+        //   $lte: savedProduct.product_cost * 1.2,
+        // }, // within 20% price range
+        _id: { $ne: savedProduct._id }, // Exclude the newly added product
+      }).limit(10); // Adjust the limit as necessary
 
-    console.log('similar',similarProducts)
+      console.log("Similar products found:", similarProducts);
 
-    // Remove duplicate IDs if any
-    const uniqueSimilarProducts = [...new Set(similarProducts.map(product => product._id.toString()))];
+      // Update the new product with similar products
+      savedProduct.similar_products = similarProducts.map(
+        (product) => product._id
+      );
 
-    // Update the new product with unique similar products
-    savedProduct.similar_products = uniqueSimilarProducts.map(id => mongoose.Types.ObjectId(id));
-    await savedProduct.save();
+      similarProducts.map((a) => console.log('a',a));
+      await savedProduct.save();
 
-      console.log('saved success',savedProduct)
-      res.status(201).json(savedProduct);
+      res.status(201).json({
+        product: savedProduct,
+        similarProducts,
+      });
     } catch (error) {
-      if (
-        error.code === 11000 &&
-        error.keyPattern &&
-        error.keyPattern.productId === 1
-      ) {
-        // Handle duplicate key error for productId
-        console.log("Duplicate productId found");
-        res.status(400).json({ error: "Duplicate productId found." });
-      } else {
-        // Handle other errors
-        console.error("Error:", error);
-        res.status(500).json({ error: "Internal server error." });
-      }
+      console.error(error); // Log the error
+      res.status(400).json({ error: error.message });
     }
   },
 
