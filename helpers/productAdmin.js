@@ -23,6 +23,7 @@ module.exports = {
   addProduct: async (req, res) => {
     try {
       const {
+        product_id,
         product_name,
         product_description,
         product_cost,
@@ -31,7 +32,8 @@ module.exports = {
         product_weight,
         product_size,
         product_color,
-
+        product_gender,
+        product_type,
         product_features,
         product_publish_date,
         product_publish_time,
@@ -53,14 +55,17 @@ module.exports = {
       }
       // Look up the category by name to get its ObjectId, or create a new category if it doesn't exist
       let category = await Category.findOne({ name: product_category.trim() });
+      console.log('c',category)
       if (!category) {
         category = new Category({ name: product_category.trim() });
+        console.log('new')
         await category.save();
       }
       const categoryId = category._id;
 
       // Create the new product
       const newProduct = new Product({
+        product_id,
         product_name,
         product_description,
         product_cost,
@@ -69,6 +74,8 @@ module.exports = {
         product_weight,
         product_size,
         product_color,
+        product_type,
+        product_gender,
         product_images: productImg,
         product_features: product_features.join(", "),
         product_publish_date,
@@ -81,22 +88,31 @@ module.exports = {
         parent_product,
       });
 
+      console.log('newproduct',newProduct)
+
       // Save the product to the database
       const savedProduct = await newProduct.save();
+      console.log('savedProduct.product_category',savedProduct.product_category)
 
-      // Find similar products based on category and tags
-      const similarProducts = await Product.find({
-        product_category: savedProduct.product_category,
-        product_tags: { $in: savedProduct.product_tags },
-        _id: { $ne: savedProduct._id }, // Exclude the newly added product
-      }).limit(10); // Adjust the limit as necessary
+      // Find similar products based on multiple criteria
+    const similarProducts = await Product.find({
+      product_category: savedProduct.product_category,
+      product_tags: { $in: savedProduct.product_tags },
+      product_brand: savedProduct.product_brand,
+      product_cost: { $gte: savedProduct.product_cost * 0.8, $lte: savedProduct.product_cost * 1.2 }, // within 20% price range
+      _id: { $ne: savedProduct._id } // Exclude the newly added product
+    }).limit(10); // Adjust the limit as necessary
 
-      // Update the new product with similar products
-      savedProduct.similar_products = similarProducts.map(
-        (product) => product._id
-      );
-      await savedProduct.save();
+    console.log('similar',similarProducts)
 
+    // Remove duplicate IDs if any
+    const uniqueSimilarProducts = [...new Set(similarProducts.map(product => product._id.toString()))];
+
+    // Update the new product with unique similar products
+    savedProduct.similar_products = uniqueSimilarProducts.map(id => mongoose.Types.ObjectId(id));
+    await savedProduct.save();
+
+      console.log('saved success',savedProduct)
       res.status(201).json(savedProduct);
     } catch (error) {
       if (

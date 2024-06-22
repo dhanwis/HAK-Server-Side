@@ -21,42 +21,14 @@ const {
 } = require("../../helpers/categories");
 
 const router = express.Router();
-
-// Create directories if they don't exist
-const createDirectories = (productId) => {
-  const mainProductPath = path.join(
-    __dirname,
-    "uploads",
-    "products",
-    productId
-  );
-  const similarProductPath = path.join(
-    __dirname,
-    "uploads",
-    "similar_products",
-    productId
-  );
-  if (!fs.existsSync(mainProductPath)) {
-    fs.mkdirSync(mainProductPath, { recursive: true });
-  }
-  if (!fs.existsSync(similarProductPath)) {
-    fs.mkdirSync(similarProductPath, { recursive: true });
-  }
-};
+ 
 
 // Define storage for the images
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    //const productId = req.body.product_id; // Ensure this is sent in the form data
-    //createDirectories(productId);
-    // if (file.fieldname.startsWith("product_images")) {
-    //   cb(null, path.join(__dirname, "uploads", "products", productId));
-    // } else if (file.fieldname.startsWith("similar_product_images")) {
-    //   cb(null, path.join(__dirname, "uploads", "similar_products", productId));
-    // }
 
-    const productId = req.body.product_id; // Ensure this is sent in the form data
-
+    const productId = req.body.product_id
+ 
     const mainProductPath = path.join(
       __dirname,
       "uploads",
@@ -82,13 +54,7 @@ const upload = multer({
   storage: storage,
   limits: { fileSize: 1024 * 1024 * 5 }, // Limit file size to 5MB
 });
-
-// // Middleware to handle multiple file fields
-// const multipleUpload = upload.fields([
-//   { name: "product_images", maxCount: 10 }, // Main product images
-//   { name: "similar_product_images", maxCount: 50 }, // Similar product images
-// ]);
-
+ 
 router.post(`/auth/login`, login);
 router.post(`/auth/logout`, logout);
 
