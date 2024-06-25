@@ -40,7 +40,7 @@ const storage = multer.diskStorage({
       fs.mkdirSync(mainProductPath, { recursive: true });
     }
 
-    if (file.fieldname.startsWith("product_images")) {
+    if (file.fieldname.startsWith("images")) {
       cb(null, path.join(__dirname, "uploads", "products",productId));
     }
   },
@@ -59,7 +59,7 @@ router.post(`/auth/login`, login);
 router.post(`/auth/logout`, logout);
 
 //product admin functionality
-router.post("/product/add", upload.array("product_images", 6), addProduct);
+router.post("/product/add", upload.array("images", 6), addProduct);
 
 router.post("/product/edit", updateProduct);
 router.post("/product/delete", deleteProduct);

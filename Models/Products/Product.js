@@ -9,29 +9,18 @@ const productSchema = new mongoose.Schema({
   product_name: { type: String, required: true, trim: true },
   product_description: { type: String, required: true, trim: true },
 
-  product_discount: { type: Number, default: 0 },
   product_category: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Category",
     required: true,
   },
   product_weight: { type: Number, required: false },
-  //product_size: { type: String, required: true },
-  //product_color: { type: [String], required: true },
-  // product_images: {
-  //   type: [String],
-  //   required: true,
-  //   validate: {
-  //     validator: (images) => images.length > 1,
-  //     message: "At least 2 product images are required.",
-  //   },
-  // },
 
   product_features: { type: String, required: true },
   product_publish_date: { type: Date, required: true },
   product_publish_time: { type: String, required: true },
   product_publish_status: { type: String, required: true },
-  product_availability: { type: String, required: true },
+
   product_tags: { type: [String], required: true },
   product_type: { type: String, requred: true },
   product_gender: { type: String, requred: true },
@@ -43,10 +32,11 @@ const productSchema = new mongoose.Schema({
     default: null,
   },
   similar_products: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
+
   variants: [
     {
-      product_color: { type: String, required: true },
-      product_images: {
+      color: { type: String, required: true },
+      images: {
         type: [String],
         required: true,
         validate: {
@@ -56,11 +46,12 @@ const productSchema = new mongoose.Schema({
       },
       skus: [
         {
-          product_size: { type: String, required: true },
-          sku: { type: String, required: true },
-          product_in_stock: { type: Boolean, required: true },
-          product_stock_quantity: { type: Number, required: true },
-          product_cost: { type: Number, required: true },
+          size: { type: String, required: true },
+          //sku: { type: String, required: true },
+          discount: { type: Number, default: 0 },
+          in_stock: { type: Boolean, required: true },
+          quantity: { type: Number, required: true },
+          actualPrice: { type: Number, required: true },
         },
       ],
     },
