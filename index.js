@@ -3,7 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const path = require('node:path')
+const path = require("node:path");
 
 const superAdminRoute = require("./Routes/SuperAdmin/admin");
 const productAdminRoute = require("./Routes/ProductAdmin/admin");
@@ -20,13 +20,13 @@ const PORT = process.env.PORT || 5000;
 app.use(cors({ origin: "http://localhost:5173" }));
 
 //other middlewares
-app.use(express.urlencoded({ extended : true }));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 //Image access
 app.use(express.static("public"));
 //app.use("/Images", express.static(path.join(__dirname, "./public/Images")));
- 
+
 //routes
 app.use("/superAdmin", superAdminRoute);
 app.use("/productAdmin", productAdminRoute);

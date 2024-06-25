@@ -125,10 +125,11 @@ module.exports = {
       (product) => product._id
     );
 
-    similarProducts.map((a) => console.log("a", a));
+    console.log("savedProduct", savedProduct);
+
     await savedProduct.save();
 
-    res.status(201).json({
+    res.status(200).json({
       product: savedProduct,
       similarProducts,
     });
@@ -154,7 +155,10 @@ module.exports = {
   },
 
   deleteProduct: async (req, res) => {
+    console.log("abc");
     const productId = req.params.id;
+
+    console.log("productId", productId);
 
     try {
       const deletedProduct = await Product.findByIdAndDelete(productId);
@@ -171,13 +175,14 @@ module.exports = {
     console.log("hai");
     try {
       const products = await Product.find();
-      res.status(200).send(products);
+      res.status(200).json(products);
     } catch (error) {
       res.status(500).send({ error: error.message });
     }
   },
 
   getProductById: async (req, res) => {
+    console.log(req.params);
     try {
       const product = await Product.findById(req.params.id).populate(
         "product_category similar_products parent_product"
@@ -185,7 +190,7 @@ module.exports = {
       if (!product) {
         return res.status(404).json({ message: "Product not found" });
       }
-      res.json(product);
+      res.status(200).json(product);
     } catch (error) {
       res.status(500).json({ message: "Error fetching product", error });
     }
