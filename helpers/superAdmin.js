@@ -6,7 +6,6 @@ module.exports = {
       const { email, password } = req.body;
 
       if (email === "admin@gmail.com" && password === "password1") {
-        
       }
 
       if (!user || !(await bcrypt.compare(password, user.password))) {

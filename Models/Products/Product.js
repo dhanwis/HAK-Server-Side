@@ -33,7 +33,7 @@ const productSchema = new mongoose.Schema({
   },
   similar_products: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
 
-  variants: [
+  variations: [
     {
       color: { type: String, required: true },
       images: {
@@ -47,7 +47,7 @@ const productSchema = new mongoose.Schema({
       skus: [
         {
           size: { type: String, required: true },
-          //sku: { type: String, required: true },
+
           discount: { type: Number, default: 0 },
           in_stock: { type: Boolean, required: true },
           quantity: { type: Number, required: true },

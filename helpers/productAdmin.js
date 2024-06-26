@@ -105,7 +105,7 @@ module.exports = {
 
       product_tags,
       product_brand,
-      variants: variationsWithSKUs,
+      variations: variationsWithSKUs,
     });
 
     // Save the product to the database
@@ -183,6 +183,7 @@ module.exports = {
 
   getProductById: async (req, res) => {
     console.log(req.params);
+    console.log("single");
     try {
       const product = await Product.findById(req.params.id).populate(
         "product_category similar_products parent_product"
