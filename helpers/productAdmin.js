@@ -139,19 +139,22 @@ module.exports = {
     const productId = req.params.id;
     const updates = req.body;
 
-    try {
-      const updatedProduct = await Product.findByIdAndUpdate(
-        productId,
-        updates,
-        { new: true }
-      );
-      if (!updatedProduct) {
-        return res.status(404).json({ message: "Product not found" });
-      }
-      res.status(200).json(updatedProduct);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
+    console.log('updates',updates)
+    console.log('idxup',productId)
+
+    // try {
+    //   const updatedProduct = await Product.findByIdAndUpdate(
+    //     productId,
+    //     updates,
+    //     { new: true }
+    //   );
+    //   if (!updatedProduct) {
+    //     return res.status(404).json({ message: "Product not found" });
+    //   }
+    //   res.status(200).json(updatedProduct);
+    // } catch (error) {
+    //   res.status(500).json({ error: error.message });
+    // }
   },
 
   deleteProduct: async (req, res) => {
@@ -174,7 +177,8 @@ module.exports = {
   getAllProduct: async (req, res) => {
     console.log("hai");
     try {
-      const products = await Product.find();
+      const products = await Product.find().populate('product_category', 'name');
+      console.log('p',products)
       res.status(200).json(products);
     } catch (error) {
       res.status(500).send({ error: error.message });
@@ -182,18 +186,25 @@ module.exports = {
   },
 
   getProductById: async (req, res) => {
-    console.log(req.params);
-    console.log("single");
     try {
-      const product = await Product.findById(req.params.id).populate(
-        "product_category similar_products parent_product"
-      );
+      const product = await Product.findById(req.params.id)
+        .populate('product_category', 'name') // Populate only the 'name' field of the 'Category' document
+        .populate('similar_products')
+        .populate('parent_product');
+  
       if (!product) {
-        return res.status(404).json({ message: "Product not found" });
+        return res.status(404).json({ message: 'Product not found' });
       }
-      res.status(200).json(product);
+  
+      // Construct the response object with category name instead of just the ObjectId
+      const responseProduct = {
+        ...product.toObject(), // Convert Mongoose document to plain JavaScript object
+        product_category: product.product_category.name, // Replace ObjectId with category name
+      };
+  
+      res.status(200).json(responseProduct);
     } catch (error) {
-      res.status(500).json({ message: "Error fetching product", error });
+      res.status(500).json({ message: 'Error fetching product', error });
     }
   },
 
