@@ -17,7 +17,11 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 //cors configuration
-app.use(cors({ origin: "http://localhost:5173" }));
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://hak-server-side.onrender.com"],
+  })
+);
 
 //other middlewares
 app.use(express.urlencoded({ extended: true }));
@@ -25,7 +29,7 @@ app.use(express.json());
 
 //Image access
 app.use(express.static("public"));
-//app.use("/Images", express.static(path.join(__dirname, "./public/Images")));
+console.log("hai image is available ?");
 
 //routes
 app.use("/superAdmin", superAdminRoute);

@@ -59,7 +59,7 @@ router.post(`/auth/logout`, logout);
 //product admin functionality
 router.post("/product/add", upload.array("images", 6), addProduct);
 
-router.put("/product/edit/:id", updateProduct);
+router.put("/product/edit/:id", upload.array("images", 6), updateProduct);
 router.delete("/product/delete/:id", deleteProduct);
 router.get("/product/view_all_products", getAllProduct);
 router.get("/product/viewProductBy/:id", getProductById);

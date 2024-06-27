@@ -1,5 +1,7 @@
 const Product = require("../Models/Products/Product");
 const Category = require("../Models/Products/category");
+const fs = require("fs");
+const path = require("path");
 
 module.exports = {
   //authentication
@@ -54,15 +56,6 @@ module.exports = {
       throw new Error("product_features must be an array");
     }
 
-    // Look up the category by name to get its ObjectId, or create a new category if it doesn't exist
-    let category = await Category.findOne({ name: product_category.trim() });
-
-    if (!category) {
-      category = new Category({ name: product_category.trim() });
-      await category.save();
-    }
-    const categoryId = category._id;
-
     // Create an array to store variations with SKUs
     const variationsWithSKUs = [];
 
@@ -92,7 +85,7 @@ module.exports = {
       product_name,
       product_description,
 
-      product_category: categoryId,
+      product_category,
       product_weight,
 
       product_type,
@@ -125,8 +118,6 @@ module.exports = {
       (product) => product._id
     );
 
-    console.log("savedProduct", savedProduct);
-
     await savedProduct.save();
 
     res.status(200).json({
@@ -138,36 +129,104 @@ module.exports = {
   updateProduct: async (req, res) => {
     const productId = req.params.id;
     const updates = req.body;
+    const updateImg = req.files;
 
-    console.log('updates',updates)
-    console.log('idxup',productId)
+    try {
+      const productToUpdate = await Product.findById(productId);
 
-    // try {
-    //   const updatedProduct = await Product.findByIdAndUpdate(
-    //     productId,
-    //     updates,
-    //     { new: true }
-    //   );
-    //   if (!updatedProduct) {
-    //     return res.status(404).json({ message: "Product not found" });
-    //   }
-    //   res.status(200).json(updatedProduct);
-    // } catch (error) {
-    //   res.status(500).json({ error: error.message });
-    // }
+      if (!productToUpdate) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      // Validate product data before saving
+      if (!Array.isArray(product_features)) {
+        throw new Error("product_features must be an array");
+      }
+
+      //manually updating each ones
+      productToUpdate.product_name = updates.product_name;
+      productToUpdate.product_weight = updates.product_weight;
+      productToUpdate.product_type = updates.product_type;
+      productToUpdate.product_brand = updates.product_brand;
+
+      productToUpdate.product_category = updates.product_category;
+      productToUpdate.product_description = updates.product_description;
+      productToUpdate.product_features = updates.product_features;
+      productToUpdate.product_gender = updates.product_gender;
+      productToUpdate.product_tags = updates.product_tags;
+
+      // Handle product images
+      let productImg = [];
+      if (updateImg) {
+        productImg = req.files.map((file) => file.filename);
+      }
+
+      // Create an array to store variations with SKUs
+      const variationsWithSKUs = [];
+
+      // Iterate through variations and format them
+      updates.variations.forEach((variation) => {
+        const { color, skus } = variation;
+
+        // Format skus array (assuming skus is an array of objects with size, price, etc.)
+        const formattedSkus = skus.map((sku) => ({
+          size: sku.size,
+          actualPrice: sku.actualPrice,
+          quantity: sku.quantity,
+          discount: sku.discount,
+          in_stock: sku.quantity >= 1 ? true : false,
+        }));
+
+        // Push formatted variation with skus into variationsWithSKUs array
+        variationsWithSKUs.push({
+          color,
+          images: productImg,
+          skus: formattedSkus,
+        });
+      });
+
+      productToUpdate.variations = variationsWithSKUs;
+
+      res.status(200).json(productToUpdate);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   },
 
   deleteProduct: async (req, res) => {
-    console.log("abc");
     const productId = req.params.id;
 
-    console.log("productId", productId);
-
     try {
-      const deletedProduct = await Product.findByIdAndDelete(productId);
-      if (!deletedProduct) {
+      const productToDelete = await Product.findById(productId);
+
+      console.log("needtodlt", productToDelete);
+
+      if (!productToDelete) {
         return res.status(404).json({ message: "Product not found" });
       }
+
+      await Product.findByIdAndDelete(productId);
+
+      // Construct the image path and delete the folder if it exists
+      if (productToDelete.product_id) {
+        const imagePath = path.join(
+          __dirname,
+          "../public/ProductImg",
+          productToDelete.product_id
+        );
+
+        // Check if the folder exists before attempting to delete
+        if (fs.existsSync(imagePath)) {
+          //fs.rmdirSync(imagePath, { recursive: true });
+          fs.rm(imagePath, { recursive: true });
+          console.log("Deleted folder:", imagePath);
+        } else {
+          console.log("Folder does not exist:", imagePath);
+        }
+      } else {
+        console.log("product_id was missing");
+      }
+
       res.status(200).json({ message: "Product deleted successfully" });
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -177,8 +236,8 @@ module.exports = {
   getAllProduct: async (req, res) => {
     console.log("hai");
     try {
-      const products = await Product.find().populate('product_category', 'name');
-      console.log('p',products)
+      const products = await Product.find();
+
       res.status(200).json(products);
     } catch (error) {
       res.status(500).send({ error: error.message });
@@ -187,24 +246,17 @@ module.exports = {
 
   getProductById: async (req, res) => {
     try {
-      const product = await Product.findById(req.params.id)
-        .populate('product_category', 'name') // Populate only the 'name' field of the 'Category' document
-        .populate('similar_products')
-        .populate('parent_product');
-  
+      const product = await Product.findById(req.params.id).populate(
+        "similar_products"
+      );
+
       if (!product) {
-        return res.status(404).json({ message: 'Product not found' });
+        return res.status(404).json({ message: "Product not found" });
       }
-  
-      // Construct the response object with category name instead of just the ObjectId
-      const responseProduct = {
-        ...product.toObject(), // Convert Mongoose document to plain JavaScript object
-        product_category: product.product_category.name, // Replace ObjectId with category name
-      };
-  
-      res.status(200).json(responseProduct);
+
+      res.status(200).json(product);
     } catch (error) {
-      res.status(500).json({ message: 'Error fetching product', error });
+      res.status(500).json({ message: "Error fetching product", error });
     }
   },
 

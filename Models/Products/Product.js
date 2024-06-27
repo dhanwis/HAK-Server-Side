@@ -9,11 +9,7 @@ const productSchema = new mongoose.Schema({
   product_name: { type: String, required: true, trim: true },
   product_description: { type: String, required: true, trim: true },
 
-  product_category: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Category",
-    required: true,
-  },
+  product_category: { type: String, required: true },
   product_weight: { type: Number, required: false },
 
   product_features: { type: String, required: true },
@@ -26,11 +22,6 @@ const productSchema = new mongoose.Schema({
   product_gender: { type: String, requred: true },
   product_brand: { type: String, required: true, trim: true },
 
-  parent_product: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Product",
-    default: null,
-  },
   similar_products: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
 
   variations: [
