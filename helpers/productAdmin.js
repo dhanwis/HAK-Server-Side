@@ -132,23 +132,36 @@ module.exports = {
     const updateImg = req.files;
 
     try {
+      // Find the product to update
       const productToUpdate = await Product.findById(productId);
 
       if (!productToUpdate) {
         return res.status(404).json({ message: "Product not found" });
       }
 
-      // Validate product data before saving
-      if (!Array.isArray(product_features)) {
+      // Validate updates
+      if (!updates || typeof updates !== "object") {
+        throw new Error("Invalid product updates");
+      }
+
+      // Validate product features if present
+      if (
+        updates.product_features &&
+        !Array.isArray(updates.product_features)
+      ) {
         throw new Error("product_features must be an array");
       }
 
-      //manually updating each ones
+      // Convert product_features to a string if it's an array
+      if (Array.isArray(updates.product_features)) {
+        updates.product_features = updates.product_features.join(", ");
+      }
+
+      // Update basic product details
       productToUpdate.product_name = updates.product_name;
       productToUpdate.product_weight = updates.product_weight;
       productToUpdate.product_type = updates.product_type;
       productToUpdate.product_brand = updates.product_brand;
-
       productToUpdate.product_category = updates.product_category;
       productToUpdate.product_description = updates.product_description;
       productToUpdate.product_features = updates.product_features;
@@ -157,42 +170,52 @@ module.exports = {
 
       // Handle product images
       let productImg = [];
-      if (updateImg) {
-        productImg = req.files.map((file) => file.filename);
+      if (updateImg && Array.isArray(updateImg)) {
+        productImg = updateImg.map((file) => file.filename);
       }
 
       // Create an array to store variations with SKUs
       const variationsWithSKUs = [];
 
-      // Iterate through variations and format them
-      updates.variations.forEach((variation) => {
-        const { color, skus } = variation;
+      // Validate and format variations
+      if (Array.isArray(updates.variations)) {
+        updates.variations.forEach((variation) => {
+          const { color, skus } = variation;
 
-        // Format skus array (assuming skus is an array of objects with size, price, etc.)
-        const formattedSkus = skus.map((sku) => ({
-          size: sku.size,
-          actualPrice: sku.actualPrice,
-          quantity: sku.quantity,
-          discount: sku.discount,
-          in_stock: sku.quantity >= 1 ? true : false,
-        }));
+          if (Array.isArray(skus)) {
+            const formattedSkus = skus.map((sku) => ({
+              size: sku.size,
+              actualPrice: sku.actualPrice,
+              quantity: sku.quantity,
+              discount: sku.discount,
+              in_stock: sku.quantity >= 1,
+            }));
 
-        // Push formatted variation with skus into variationsWithSKUs array
-        variationsWithSKUs.push({
-          color,
-          images: productImg,
-          skus: formattedSkus,
+            variationsWithSKUs.push({
+              color,
+              images: productImg,
+              skus: formattedSkus,
+            });
+          } else {
+            throw new Error("Invalid skus format");
+          }
         });
-      });
+      } else {
+        throw new Error("variations must be an array");
+      }
 
       productToUpdate.variations = variationsWithSKUs;
 
+      // Save the updated product
+      await productToUpdate.save();
+
+      console.log("updated", productToUpdate);
       res.status(200).json(productToUpdate);
     } catch (error) {
+      console.error("Error updating product:", error); // Log the error for debugging
       res.status(500).json({ error: error.message });
     }
   },
-
   deleteProduct: async (req, res) => {
     const productId = req.params.id;
 

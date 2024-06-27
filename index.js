@@ -19,7 +19,11 @@ const PORT = process.env.PORT || 5000;
 //cors configuration
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://hak-server-side.onrender.com"],
+    origin: [
+      "http://localhost:5173",
+      "https://hak-server-side.onrender.com",
+      "http://192.168.1.31:5173",
+    ],
   })
 );
 
