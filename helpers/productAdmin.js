@@ -43,6 +43,8 @@ module.exports = {
       variations,
     } = req.body;
 
+      
+
     // Handle product images
     let productImg = [];
     if (req.files && req.files.length > 2) {
@@ -201,6 +203,7 @@ module.exports = {
           }
         });
       } else {
+        console.log("updates.variations:", updates.variations); // Log variations to inspect
         throw new Error("variations must be an array");
       }
 
@@ -209,7 +212,6 @@ module.exports = {
       // Save the updated product
       await productToUpdate.save();
 
-      console.log("updated", productToUpdate);
       res.status(200).json(productToUpdate);
     } catch (error) {
       console.error("Error updating product:", error); // Log the error for debugging
@@ -221,8 +223,6 @@ module.exports = {
 
     try {
       const productToDelete = await Product.findById(productId);
-
-      console.log("needtodlt", productToDelete);
 
       if (!productToDelete) {
         return res.status(404).json({ message: "Product not found" });
@@ -240,8 +240,7 @@ module.exports = {
 
         // Check if the folder exists before attempting to delete
         if (fs.existsSync(imagePath)) {
-          //fs.rmdirSync(imagePath, { recursive: true });
-          fs.rm(imagePath, { recursive: true });
+          await fs.promises.rm(imagePath, { recursive: true });
           console.log("Deleted folder:", imagePath);
         } else {
           console.log("Folder does not exist:", imagePath);
@@ -257,10 +256,8 @@ module.exports = {
   },
 
   getAllProduct: async (req, res) => {
-    console.log("hai");
     try {
       const products = await Product.find();
-
       res.status(200).json(products);
     } catch (error) {
       res.status(500).send({ error: error.message });
