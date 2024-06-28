@@ -34,8 +34,9 @@ module.exports = {
       product_gender,
       product_type,
       product_features,
-      product_publish_date,
-      product_publish_time,
+      // product_publish_date,
+      // product_publish_time,
+      product_publish_datetime,
       product_publish_status,
 
       product_tags,
@@ -94,8 +95,9 @@ module.exports = {
       product_gender,
 
       product_features: product_features.join(", "),
-      product_publish_date,
-      product_publish_time,
+      // product_publish_date,
+      // product_publish_time,
+      product_publish_datetime: new Date(product_publish_datetime),
       product_publish_status,
 
       product_tags,

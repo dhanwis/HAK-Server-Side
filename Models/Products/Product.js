@@ -13,8 +13,9 @@ const productSchema = new mongoose.Schema({
   product_weight: { type: Number, required: false },
 
   product_features: { type: String, required: true },
-  product_publish_date: { type: Date, required: true },
-  product_publish_time: { type: String, required: true },
+  // product_publish_date: { type: Date, required: true },
+  // product_publish_time: { type: String, required: true },
+  product_publish_datetime: { type: Date, required: true },
   product_publish_status: { type: String, required: true },
 
   product_tags: { type: [String], required: true },
