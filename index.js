@@ -22,7 +22,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "https://hak-server-side.onrender.com",
-      "http://192.168.1.31:5173",
+      "http://192.168.1.57:5173",
     ],
   })
 );
