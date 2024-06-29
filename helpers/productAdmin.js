@@ -18,7 +18,7 @@ module.exports = {
     }
   },
 
-  logout: () => {},
+  logout: () => { },
 
   //product_functions;
 
@@ -44,7 +44,8 @@ module.exports = {
       variations,
     } = req.body;
 
-      
+
+
 
     // Handle product images
     let productImg = [];
