@@ -1,5 +1,5 @@
-const Product = require("../Models/Products/Product");
-const Category = require("../Models/Products/category");
+const Product = require("../../Models/Products/Product");
+const Category = require("../../Models/Products/category");
 const fs = require("fs");
 const path = require("path");
 
@@ -236,7 +236,7 @@ module.exports = {
       res.status(500).json({ error: error.message });
     }
   },
-  
+
   deleteProduct: async (req, res) => {
     const productId = req.params.id;
 

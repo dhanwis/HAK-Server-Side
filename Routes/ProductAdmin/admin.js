@@ -8,7 +8,7 @@ const {
   updateProduct,
   deleteProduct,
   getProductByCategory,
-} = require("../../helpers/productAdmin");
+} = require("../../helpers/ProductAdmin/products");
 const multer = require("multer");
 const path = require("node:path");
 const fs = require("fs");
@@ -19,6 +19,7 @@ const {
   getCategories,
   updateCategory,
 } = require("../../helpers/categories");
+const { addBanner, updateBanner, getAllBanners } = require("../../helpers/ProductAdmin/offers");
 
 const router = express.Router();
 
@@ -71,5 +72,12 @@ router.get("category/categories", getCategories);
 
 router.put("category/update-category/:id", updateCategory);
 router.delete("category/delete-category/:id", deleteCategory);
+
+//Offer functionality
+router.post("/banner/add", upload.single("bannerImg"), addBanner);
+
+router.put("/banner/edit/:id", upload.single("bannerImg"), updateBanner);
+//router.delete("/banner/delete/:id", deleteBanner);
+router.get("/banner/view_all_banners", getAllBanners);
 
 module.exports = router;
