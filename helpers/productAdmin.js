@@ -18,7 +18,7 @@ module.exports = {
     }
   },
 
-  logout: () => { },
+  logout: () => {},
 
   //product_functions;
 
@@ -34,8 +34,7 @@ module.exports = {
       product_gender,
       product_type,
       product_features,
-      // product_publish_date,
-      // product_publish_time,
+
       product_publish_datetime,
       product_publish_status,
 
@@ -44,8 +43,7 @@ module.exports = {
       variations,
     } = req.body;
 
-
-
+    console.log("add", req.body);
 
     // Handle product images
     let productImg = [];
@@ -137,19 +135,16 @@ module.exports = {
     const updateImg = req.files;
 
     try {
-      // Find the product to update
       const productToUpdate = await Product.findById(productId);
 
       if (!productToUpdate) {
         return res.status(404).json({ message: "Product not found" });
       }
 
-      // Validate updates
       if (!updates || typeof updates !== "object") {
         throw new Error("Invalid product updates");
       }
 
-      // Validate product features if present
       if (
         updates.product_features &&
         !Array.isArray(updates.product_features)
@@ -157,12 +152,10 @@ module.exports = {
         throw new Error("product_features must be an array");
       }
 
-      // Convert product_features to a string if it's an array
       if (Array.isArray(updates.product_features)) {
         updates.product_features = updates.product_features.join(", ");
       }
 
-      // Update basic product details
       productToUpdate.product_name = updates.product_name;
       productToUpdate.product_weight = updates.product_weight;
       productToUpdate.product_type = updates.product_type;
@@ -173,18 +166,22 @@ module.exports = {
       productToUpdate.product_gender = updates.product_gender;
       productToUpdate.product_tags = updates.product_tags;
 
-      // Handle product images
       let productImg = [];
       if (updateImg && Array.isArray(updateImg)) {
         productImg = updateImg.map((file) => file.filename);
       }
 
-      // Create an array to store variations with SKUs
+      if (updates.existingImages) {
+        if (!Array.isArray(updates.existingImages)) {
+          updates.existingImages = [updates.existingImages];
+        }
+        productImg = [...updates.existingImages, ...productImg];
+      }
+
       const variationsWithSKUs = [];
 
-      // Validate and format variations
       if (Array.isArray(updates.variations)) {
-        updates.variations.forEach((variation) => {
+        updates.variations.forEach((variation, index) => {
           const { color, skus } = variation;
 
           if (Array.isArray(skus)) {
@@ -198,7 +195,7 @@ module.exports = {
 
             variationsWithSKUs.push({
               color,
-              images: productImg,
+              images: index === 0 ? productImg : [], // Assign productImg only to the first variation
               skus: formattedSkus,
             });
           } else {
@@ -210,9 +207,27 @@ module.exports = {
         throw new Error("variations must be an array");
       }
 
+      const oldImages = productToUpdate.variations[0].images;
+      const imagesToDelete = oldImages.filter(
+        (image) => !productImg.includes(image)
+      );
+
+      imagesToDelete.forEach((image) => {
+        console.log("imgs", image);
+        const imagePath = path.join(
+          __dirname,
+          `../public/ProductImg/${productToUpdate.product_id}`,
+          image
+        );
+        fs.unlink(imagePath, (err) => {
+          if (err) {
+            console.error(`Failed to delete image: ${imagePath}`, err);
+          }
+        });
+      });
+
       productToUpdate.variations = variationsWithSKUs;
 
-      // Save the updated product
       await productToUpdate.save();
 
       res.status(200).json(productToUpdate);
@@ -221,6 +236,7 @@ module.exports = {
       res.status(500).json({ error: error.message });
     }
   },
+  
   deleteProduct: async (req, res) => {
     const productId = req.params.id;
 
